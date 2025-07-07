@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Clock, Countdown & Notepad</title>
+  <style>
+    body {
+      background: linear-gradient(to bottom, #fff 29px, #f0f0f0 30px);
+      background-size: 100% 30px;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .top-half {
+      display: flex;
+      flex: 1;
+      padding: 20px;
+      background: #fff;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      z-index: 2;
+      position: relative;
+      border-bottom: 4px solid #ffcc00;
+    }
+
+    .bottom-half {
+      display: flex;
+      flex: 1;
+      padding: 20px;
+      background: #eaeaea;
+      box-shadow: inset 0 8px 20px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+
+
+    .left, .right {
+      flex: 1;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    #time {
+      font-size: 3.5em;
+      font-weight: bold;
+      text-align: left;
+      color: #222;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    @media (max-width: 900px) {
+  .top-half {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .top-half .left, .top-half .right {
+    width: 100%;
+    padding: 10px;
+  }
+
+  #time {
+    font-size: 2em;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .countdown-inputs input, .countdown-inputs button {
+    width: 100%;
+    margin: 5px 0;
+    font-size: 1em;
+  }
+
+  textarea {
+    width: 100% !important;
+  }
+
+  .right textarea {
+    min-height: 100px;
+  }
+}
+
+@media (max-width: 500px) {
+  #time {
+    font-size: 1.5em;
+  }
+
+  .countdown-inputs input,
+  .countdown-inputs button {
+    font-size: 0.95em;
+    padding: 8px;
+  }
+}
+
+.countdown-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.countdown-inputs input,
+.countdown-inputs button {
+  flex: 1 1 auto;
+  min-width: 120px;
+}
+
+
+    .countdown-inputs input, .countdown-inputs button {
+      font-size: 1em;
+      padding: 10px;
+      margin-right: 5px;
+    }
+
+    .countdown {
+      background: #f8f8f8;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin: 12px 0;
+      padding: 12px 40px 12px 12px;
+      box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.15);
+    }
+
+
+    .countdown-list .countdown {
+      position: relative;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin: 10px 0;
+      padding: 10px 40px 10px 10px;
+      text-align: left;
+    }
+
+    .delete-btn {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      background: red;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    #noteContent {
+      width: 100%;
+      height: 120px;
+      resize: vertical;
+      font-family: monospace;
+    }
+
+    #noteContent {
+      width: 100%;
+      height: 120px;
+      resize: vertical;
+      font-family: monospace;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.15);
+      background: #fefefe;
+      border: 1px solid #ccc;
+    }
+
+    .note-entry {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 5px;
+      min-height: 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+     /*#noteList {
+      background-image:
+        linear-gradient(to right, rgba(200, 200, 200, 0.2) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(200, 200, 200, 0.2) 1px, transparent 1px);
+      background-size: 20px 20px;
+      padding: 15px;
+      border-radius: 8px;
+    }*/
+
+@media (max-width: 768px) {
+  #noteList {
+    background-image:
+        linear-gradient(to right, rgba(200, 200, 200, 0.2) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(200, 200, 200, 0.2) 1px, transparent 1px);
+      background-size: 20px 20px;
+      padding: 15px;
+      border-radius: 8px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  #noteList {
+    background-image:
+        linear-gradient(to right, rgba(200, 200, 200, 0.2) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(200, 200, 200, 0.2) 1px, transparent 1px);
+      background-size: 20px 20px;
+      padding: 15px;
+      border-radius: 8px;
+    grid-template-columns: 1fr;
+  }
+}
+
+
+    .note-entry button {
+      margin-top: 8px;
+      margin-right: 5px;
+    }
+    .note-entry small {
+      margin-top: 10px;
+      display: block;
+      font-size: 0.85em;
+    }
+
+    .dots-loader {
+      font-size: 0.7em;
+      color: #666;
+      margin-top: 5px;
+      display: inline-block;
+    }
+
+    .dots-loader span {
+      animation: blink 1.2s infinite;
+      opacity: 0;
+    }
+
+    .dots-loader span:nth-child(1) { animation-delay: 0s; }
+    .dots-loader span:nth-child(2) { animation-delay: 0.2s; }
+    .dots-loader span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+
+    .progress-container {
+      position: relative;
+      height: 16px;
+      background: #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(120deg, #ffd54f, #ff9800);
+      position: relative;
+      animation: shimmer 2s infinite linear;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .progress-text {
+      color: #fff;
+      font-size: 0.7em;
+      font-weight: bold;
+      z-index: 2;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .progress-wrapper {
+      margin-top: 15px;
+      font-size: 0.85em;
+    }
+
+    .progress-bar {
+      height: 16px;
+      background: #eee;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 70%; /* or dynamic */
+      background: 
+        linear-gradient(to right, rgba(255,255,255,0.1), rgba(255,255,255,0) 50%, rgba(255,255,255,0.1)),
+        repeating-linear-gradient(
+          135deg,
+          #ffc107,
+          #ffc107 10px,
+          #ff9800 10px,
+          #ff9800 20px
+        );
+      background-size: 20px 100%;
+      animation: move-stripes 1.5s linear infinite;
+      transition: width 0.5s ease-in-out;
+      border-radius: 20px;
+      box-shadow:
+        inset 0 1px 2px rgba(255, 255, 255, 0.3),
+        inset 0 -1px 3px rgba(0, 0, 0, 0.4);
+    }
+
+
+
+    @keyframes move-stripes {
+      0% {
+        background-position: 0 0;
+        /*transform: scaleX(1);*/
+      }
+      100% {
+        background-position: 40px 0px;
+        /*transform: scaleX(1.05);  Optional pulse */
+      }
+    }
+
+    @keyframes pump-stripes {
+      0% { background-position: 0 0; transform: scaleY(1); }
+      50% { background-position: 20px 10px; transform: scaleY(1.05); }
+      100% { background-position: 40px 0; transform: scaleY(1); }
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 5px;
+      font-size: 0.85em;
+      font-weight: bold;
+      color: #444;
+    }
+
+    .left-label {
+      text-align: left;
+    }
+
+    .right-label {
+      text-align: right;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    @keyframes shimmer {
+      0% {
+        background-position: -100px 0;
+      }
+      100% {
+        background-position: 300px 0;
+      }
+    }
+
+    .sand-clock {
+      font-size: 1.5em;
+      margin-top: 8px;
+      animation: rotateClock 3s infinite linear;
+      display: inline-block;
+    }
+
+    .sand-clock::before {
+      content: '⏳';
+      display: inline-block;
+    }
+
+    @keyframes rotateClock {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(15deg); }
+      50% { transform: rotate(-10deg); }
+      75% { transform: rotate(5deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+
+    #knowledgeCentre textarea {
+      width: 100%;
+      min-height: 100px;
+      resize: vertical;
+      font-family: monospace;
+    }
+
+    .knowledge-entry {
+      padding: 10px;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    .knowledge-entry small {
+      font-weight: normal;
+      display: block;
+      margin-top: 5px;
+      color: #f0f0f0;
+      font-style: italic;
+    }
+
+    /* Vibrant Colors */
+    .tech {
+      background: linear-gradient(135deg, #2196f3, #0d47a1);
+    }
+
+    .health {
+      background: linear-gradient(135deg, #e91e63, #880e4f);
+    }
+
+    .common {
+      background: linear-gradient(135deg, #9e9e9e, #616161);
+    }
+
+    .tips {
+      background: linear-gradient(135deg, #4caf50, #1b5e20);
+    }
+
+    .findings {
+      background: linear-gradient(135deg, #ff9800, #e65100);
+    }
+
+
+    textarea, button {
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-half">
+      <div class="left">
+        <div id="time"></div>
+      </div>
+      <div class="right">
+        <div class="countdown-inputs">
+          <input type="text" id="taskName" placeholder="Task name">
+          <input type="datetime-local" id="taskDateTime">
+          <button onclick="addCountdown()">Add</button>
+        </div>
+        <div class="countdown-list" id="countdowns"></div>
+      </div>
+    </div>
+
+
+    <div class="bottom-half">
+      <div class="left">
+        <h2>📝 Today's Notes</h2>
+        <textarea id="noteContent" placeholder="Write something..."></textarea><br>
+        <button onclick="saveNote()">Let's save this</button>
+        <button onclick="clearInput()">Rewrite!</button>
+        <div id="lastSaved" style="margin-top: 10px; color: #555;"></div>
+      </div>
+      <div class="right">
+        <h3>🗂 Saved Notes</h3>
+        <div id="noteList"></div>
+      </div>
+    </div>
+
+    <div id="knowledgeCentre" style="margin-top: 40px;">
+      <h2>📚 Knowledge Centre</h2>
+      <textarea id="knowledgeContent" placeholder="Share your knowledge..."></textarea><br>
+
+      <label for="knowledgeCategory">Choose a category: </label>
+      <select id="knowledgeCategory">
+        <option value="tech">🖥 Tech</option>
+        <option value="health">💊 Health</option>
+        <option value="common">📘 Common Knowledge</option>
+        <option value="tips">💡 Tips</option>
+        <option value="findings">🔍 Findings</option>
+      </select>
+      <button onclick="saveKnowledgeNote()">Save Knowledge</button>
+
+      <div id="knowledgeList" style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;"></div>
+    </div>
+
+
+  </div>
+
+  <script>
+    const countdowns = [];
+
+    // Clock
+    function updateClock() {
+      const now = new Date();
+      const startOfYear = new Date(now.getFullYear(), 0, 1);
+      const endOfYear = new Date(now.getFullYear() + 1, 0, 1);
+      const msInDay = 1000 * 60 * 60 * 24;
+
+      const dayOfYear = Math.floor((now - startOfYear) / msInDay) + 1;
+      const totalDays = Math.floor((endOfYear - startOfYear) / msInDay);
+      const daysLeft = totalDays - dayOfYear;
+      const percentPassed = Math.floor((dayOfYear / totalDays) * 100);
+
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const dateStr = now.toLocaleDateString(undefined, options);
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      const progressBar = `
+        <div class="progress-wrapper">
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${percentPassed}%"></div>
+          </div>
+          <div class="progress-labels">
+            <span class="left-label">${dayOfYear} Days passed </span>
+            <span class="right-label">${daysLeft} Days left<span class="dots-loader"><span>.</span><span>.</span><span>.</span></span></span>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('time').innerHTML = `
+        <div style="font-size: 2em;">${timeStr}</div>
+        <div style="font-size: 0.6em; margin-top: 4px;">${dateStr}</div>
+        ${progressBar}
+      `;
+    }
+
+
+
+
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Countdown
+    function saveCountdowns() {
+      const data = countdowns.map(c => ({ id: c.id, name: c.name, dateTime: c.dateTime }));
+      localStorage.setItem('countdowns', JSON.stringify(data));
+    }
+
+    function loadCountdowns() {
+      const saved = JSON.parse(localStorage.getItem('countdowns') || '[]');
+      for (const item of saved) {
+        createCountdown(item.name, new Date(item.dateTime), item.id);
+      }
+    }
+
+    function createCountdown(name, endTime, idOverride = null) {
+      const div = document.createElement('div');
+      div.className = 'countdown';
+      const id = idOverride || Date.now() + Math.random();
+
+      const nameSpan = document.createElement('span');
+      nameSpan.contentEditable = true;
+      nameSpan.style.fontWeight = 'bold';
+      nameSpan.textContent = name;
+      nameSpan.onblur = () => renameCountdown(id, nameSpan);
+
+      const timeSpan = document.createElement('span');
+      const cancelBtn = document.createElement('button');
+      cancelBtn.className = 'delete-btn';
+      cancelBtn.textContent = '✖';
+      cancelBtn.onclick = () => deleteCountdown(id, div);
+
+      div.appendChild(nameSpan);
+      div.appendChild(timeSpan);
+      div.appendChild(cancelBtn);
+
+      function update() {
+        const now = new Date();
+        const diff = endTime - now;
+        if (diff <= 0) {
+          timeSpan.textContent = ': ✅ Done';
+          clearInterval(interval);
+          return;
+        }
+        const h = Math.floor(diff / (1000 * 60 * 60));
+        const m = Math.floor((diff / (1000 * 60)) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+        timeSpan.textContent = `: ${h}h ${m}m ${s}s left`;
+      }
+
+      update();
+      const interval = setInterval(update, 1000);
+      document.getElementById('countdowns').appendChild(div);
+      countdowns.push({ id, name, dateTime: endTime.toISOString(), div, interval });
+      saveCountdowns();
+    }
+
+    function renameCountdown(id, span) {
+      const countdown = countdowns.find(c => c.id === id);
+      if (countdown) {
+        countdown.name = span.textContent.trim();
+        saveCountdowns();
+      }
+    }
+
+    function addCountdown() {
+      const name = document.getElementById('taskName').value.trim();
+      const dateTime = document.getElementById('taskDateTime').value;
+      if (!name || !dateTime) return alert("Please fill both fields.");
+      createCountdown(name, new Date(dateTime));
+      document.getElementById('taskName').value = '';
+      document.getElementById('taskDateTime').value = '';
+    }
+
+    function deleteCountdown(id, div) {
+      const index = countdowns.findIndex(c => c.id === id);
+      if (index !== -1) {
+        clearInterval(countdowns[index].interval);
+        countdowns[index].div.remove();
+        countdowns.splice(index, 1);
+        saveCountdowns();
+      }
+    }
+
+    // Notes
+    function getNotesSafely() {
+      try {
+        return JSON.parse(localStorage.getItem('dailyNotes') || '[]');
+      } catch {
+        localStorage.removeItem('dailyNotes');
+        return [];
+      }
+    }
+
+    function saveNote() {
+      const content = document.getElementById('noteContent').value.trim();
+      if (!content) return;
+
+      const notes = getNotesSafely();
+      const timestamp = new Date().toLocaleString();
+      notes.unshift({ content, timestamp });
+      localStorage.setItem('dailyNotes', JSON.stringify(notes));
+      updateNoteList();
+      document.getElementById('noteContent').value = '';
+      document.getElementById('lastSaved').textContent = `Last saved: ${timestamp}`;
+    }
+
+    function clearInput() {
+      document.getElementById('noteContent').value = '';
+    }
+
+    function updateNoteList() {
+      const noteList = document.getElementById('noteList');
+      noteList.innerHTML = '';
+      const notes = getNotesSafely();
+
+      if (notes.length === 0) {
+        noteList.innerHTML = '<p>No notes yet.</p>';
+        return;
+      }
+
+      notes.forEach((note, index) => {
+        const div = document.createElement('div');
+        div.className = 'note-entry';
+
+        const contentDiv = document.createElement('div');
+        contentDiv.innerHTML = note.content.replace(/\n/g, '<br>');
+        const timestampDiv = document.createElement('small');
+        timestampDiv.textContent = `Saved: ${note.timestamp}`;
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '✏️';
+        editBtn.onclick = () => {
+          const textarea = document.createElement('textarea');
+          textarea.value = note.content;
+          textarea.style.width = '100%';
+          textarea.rows = 4;
+
+          const saveBtn = document.createElement('button');
+          saveBtn.textContent = '💾 Save';
+          saveBtn.onclick = () => {
+            notes[index].content = textarea.value;
+            notes[index].timestamp = new Date().toLocaleString();
+            localStorage.setItem('dailyNotes', JSON.stringify(notes));
+            updateNoteList();
+          };
+
+          div.innerHTML = '';
+          div.appendChild(textarea);
+          div.appendChild(saveBtn);
+        };
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = '🗑️';
+        deleteBtn.onclick = () => {
+          notes.splice(index, 1);
+          localStorage.setItem('dailyNotes', JSON.stringify(notes));
+          updateNoteList();
+        };
+
+        div.appendChild(contentDiv);
+        div.appendChild(timestampDiv);
+        div.appendChild(editBtn);
+        div.appendChild(deleteBtn);
+        noteList.appendChild(div);
+      });
+    }
+
+    function getKnowledgeSafely() {
+      try {
+        return JSON.parse(localStorage.getItem('knowledgeNotes') || '[]');
+      } catch {
+        localStorage.removeItem('knowledgeNotes');
+        return [];
+      }
+    }
+
+    function saveKnowledgeNote() {
+      const content = document.getElementById('knowledgeContent').value.trim();
+      const category = document.getElementById('knowledgeCategory').value;
+      if (!content) return;
+
+      const knowledge = getKnowledgeSafely();
+      const timestamp = new Date().toLocaleString();
+
+      knowledge.unshift({ content, timestamp, category });
+      localStorage.setItem('knowledgeNotes', JSON.stringify(knowledge));
+      document.getElementById('knowledgeContent').value = '';
+      updateKnowledgeList();
+    }
+
+    function updateKnowledgeList() {
+      const list = document.getElementById('knowledgeList');
+      list.innerHTML = '';
+      const knowledge = getKnowledgeSafely();
+
+      knowledge.forEach((note, index) => {
+        const div = document.createElement('div');
+        div.className = 'knowledge-entry ' + note.category;
+
+        const contentDiv = document.createElement('div');
+        contentDiv.innerHTML = note.content.replace(/\n/g, '<br>');
+
+        const time = document.createElement('small');
+        time.textContent = note.timestamp;
+
+        div.appendChild(contentDiv);
+        div.appendChild(time);
+        list.appendChild(div);
+      });
+    }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCountdowns();
+      updateNoteList();
+      updateKnowledgeList(); 
+    });
+  </script>
+</body>
+</html>
